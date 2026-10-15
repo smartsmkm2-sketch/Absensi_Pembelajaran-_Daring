@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Absensi Pembelajaran Daring - SMK Muhammadiyah 2 Samarinda</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        muhammadiyah: {
+                            800: '#00552b',
+                            700: '#006633',
+                            600: '#008844',
+                            50: '#f0fdf4',
+                        },
+                        gold: {
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            700: '#b45309',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- SheetJS for Excel Export -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+    <!-- html2pdf for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .bg-muha-pattern {
+            background-color: #006633;
+            background-image: radial-gradient(#008844 1px, transparent 1px);
+            background-size: 16px 16px;
+        }
+        .gold-border {
+            border-color: #d97706;
+        }
+        .shadow-soft {
+            box-shadow: 0 10px 25px -5px rgba(0, 102, 51, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #006633;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00552b;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between antialiased selection:bg-emerald-200 selection:text-emerald-900">
+
+    <header class="bg-gradient-to-r from-emerald-900 via-muhammadiyah-700 to-teal-900 text-white shadow-lg border-b-4 border-gold-600 no-print sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row items-center justify-between gap-4">
+            
+            <!-- Brand Logo & Identity -->
+            <div class="flex items-center gap-3.5">
+                <!-- SVG Emblem Logo SMK Muhammadiyah 2 Samarinda -->
+                <div class="relative flex-shrink-0 bg-white rounded-2xl p-1 shadow-md border-2 border-gold-500">
+                    <img src="data:image/jpeg;base64,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" alt="Logo SMK Muhammadiyah 2 Samarinda" class="h-12 w-auto object-contain rounded-lg">
+                </div>
+                <div>
+                    <h1 class="text-lg md:text-xl font-extrabold tracking-tight leading-tight uppercase text-white">
+                        SMK Muhammadiyah 2 Samarinda
+                    </h1>
+                    <p class="text-xs sm:text-sm text-amber-200 font-medium flex items-center gap-1.5">
+                        <i class="fa-solid fa-graduation-cap text-gold-500"></i>
+                        Jurnal & Absensi Pembelajaran Daring
+                    </p>
+                </div>
+            </div>
+
+            <!-- Header Action Navigation -->
+            <div class="flex items-center gap-2.5 w-full md:w-auto justify-end">
+                <button id="btn-tab-form" onclick="switchTab('form')" class="px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 bg-white text-emerald-800 shadow-sm border border-emerald-100">
+                    <i class="fa-solid fa-pen-to-square"></i> Form Absensi
+                </button>
+                <button id="btn-tab-admin" onclick="triggerAdminAccess()" class="px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 bg-emerald-800/80 hover:bg-emerald-800 text-amber-300 border border-emerald-600">
+                    <i class="fa-solid fa-lock" id="admin-lock-icon"></i>
+                    <span id="admin-nav-text">Dashboard Admin</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
+
+        <!-- Toast Notification Area -->
+        <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+        <!-- ================= SECTION 1: FORM ABSENSI ================= -->
+        <section id="section-form" class="space-y-6">
+            
+            <!-- Banner Intro -->
+            <div class="bg-gradient-to-r from-emerald-50 via-teal-50 to-amber-50 border-l-4 border-muhammadiyah-700 p-4 sm:p-5 rounded-r-xl shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div class="space-y-1">
+                    <h2 class="text-base sm:text-lg font-bold text-emerald-950 flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-user text-muhammadiyah-700"></i>
+                        Pengisian Laporan KBM Daring Hari Ini
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-600">
+                        Silakan lengkapi data pembelajaran dan rekap data kehadiran siswa dengan teliti.
+                    </p>
+                </div>
+                <div class="text-xs bg-emerald-800 text-amber-200 font-medium px-3 py-1.5 rounded-lg border border-emerald-700 flex items-center gap-2 self-start sm:self-auto">
+                    <i class="fa-regular fa-clock"></i>
+                    <span id="live-clock">--:--:-- WITA</span>
+                </div>
+            </div>
+
+            <!-- Main Form Card -->
+            <form id="absensi-form" onsubmit="handleFormSubmit(event)" class="bg-white rounded-2xl shadow-soft border border-slate-200 overflow-hidden">
+                
+                <!-- Form Section 1: Informasi Guru & Mapel -->
+                <div class="p-5 sm:p-7 border-b border-slate-100">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-emerald-800 border-b pb-2 mb-5 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 text-xs flex items-center justify-center font-black">1</span>
+                        Informasi Pembelajaran & Pengajar
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                        
+                        <!-- Nama Guru -->
+                        <div class="space-y-1.5">
+                            <label for="nama_guru" class="block text-xs font-bold text-slate-700 uppercase">
+                                Nama Guru / Pengajar <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                    <i class="fa-solid fa-user-tie"></i>
+                                </span>
+                                <input type="text" id="nama_guru" required placeholder="Contoh: Drs. Ahmad Dahlan, M.Pd"
+                                    class="w-full pl-9 pr-3 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none transition-all">
+                            </div>
+                        </div>
+
+                        <!-- Mata Pelajaran -->
+                        <div class="space-y-1.5">
+                            <label for="mata_pelajaran" class="block text-xs font-bold text-slate-700 uppercase">
+                                Mata Pelajaran <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                    <i class="fa-solid fa-book-open"></i>
+                                </span>
+                                <input type="text" id="mata_pelajaran" required placeholder="Contoh: Pemrograman Web / Pendidikan Agama"
+                                    class="w-full pl-9 pr-3 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none transition-all">
+                            </div>
+                        </div>
+
+                        <!-- Kelas (INPUT TEXT MANUAL - No Dropdown) -->
+                        <div class="space-y-1.5">
+                            <label for="kelas_manual" class="block text-xs font-bold text-slate-700 uppercase">
+                                Kelas <span class="text-red-500">*</span> <span class="text-[10px] text-amber-700 font-normal">(Input Manual)</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                    <i class="fa-solid fa-door-open"></i>
+                                </span>
+                                <input type="text" id="kelas_manual" required placeholder="Tuliskan nama kelas (misal: X TKJ 1, XII AKL 2)"
+                                    class="w-full pl-9 pr-3 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none transition-all">
+                            </div>
+                        </div>
+
+                        <!-- Tanggal Mengajar -->
+                        <div class="space-y-1.5">
+                            <label for="tanggal_mengajar" class="block text-xs font-bold text-slate-700 uppercase">
+                                Tanggal Mengajar <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                    <i class="fa-solid fa-calendar-day"></i>
+                                </span>
+                                <input type="date" id="tanggal_mengajar" required
+                                    class="w-full pl-9 pr-3 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none transition-all">
+                            </div>
+                        </div>
+
+                        <!-- Waktu / Jam Mengajar (INPUT MANUAL CUSTOM) -->
+                        <div class="space-y-1.5 md:col-span-2 lg:col-span-2">
+                            <label for="waktu_mengajar" class="block text-xs font-bold text-slate-700 uppercase">
+                                Waktu / Jam Mengajar <span class="text-red-500">*</span> <span class="text-[10px] text-emerald-700 font-normal">(Bebas / Custom Text)</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                    <i class="fa-regular fa-clock"></i>
+                                </span>
+                                <input type="text" id="waktu_mengajar" required 
+                                    placeholder="Contoh: Jam ke-1 s.d 3 / 07:30 - 09:00 WITA"
+                                    class="w-full pl-9 pr-3 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none transition-all">
+                            </div>
+                            <p class="text-[11px] text-slate-500 italic">Guru dapat memasukkan format jam/waktu mengajar secara bebas sesuai jadwal.</p>
+                        </div>
+
+                        <!-- Platform Daring -->
+                        <div class="space-y-1.5">
+                            <label for="platform_daring" class="block text-xs font-bold text-slate-700 uppercase">
+                                Platform Daring <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                    <i class="fa-solid fa-laptop-code"></i>
+                                </span>
+                                <select id="platform_daring" required
+                                    class="w-full pl-9 pr-3 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none transition-all">
+                                    <option value="">-- Pilih Platform --</option>
+                                    <option value="Google Meet">Google Meet</option>
+                                    <option value="Zoom Meeting">Zoom Meeting</option>
+                                    <option value="WhatsApp Group">WhatsApp Group</option>
+                                    <option value="Google Classroom">Google Classroom</option>
+                                    <option value="LMS SMK Muda">LMS SMK Muda</option>
+                                    <option value="YouTube / Video Class">YouTube / Video Class</option>
+                                    <option value="Lainnya">Lainnya</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Topik / Materi Pembelajaran -->
+                        <div class="space-y-1.5 md:col-span-2 lg:col-span-2">
+                            <label for="topik_materi" class="block text-xs font-bold text-slate-700 uppercase">
+                                Topik / Materi Pembelajaran <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <textarea id="topik_materi" rows="2" required placeholder="Tuliskan uraian ringkas topik atau materi yang disampaikan saat pembelajaran..."
+                                    class="w-full p-3 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none transition-all"></textarea>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Form Section 2: Rekap Kehadiran Siswa -->
+                <div class="p-5 sm:p-7 border-b border-slate-100 bg-emerald-50/30">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-emerald-800 border-b border-emerald-200 pb-2 mb-5 flex items-center justify-between">
+                        <span class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 text-xs flex items-center justify-center font-black">2</span>
+                            Rekap Kehadiran Siswa
+                        </span>
+                        <span id="calc-percentage-badge" class="text-xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-bold">
+                            Tingkat Kehadiran: 100%
+                        </span>
+                    </h3>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
+                        
+                        <!-- Hadir -->
+                        <div class="bg-white p-3.5 rounded-xl border-2 border-emerald-500 shadow-sm text-center">
+                            <label class="block text-xs font-extrabold text-emerald-700 uppercase mb-1">
+                                <i class="fa-solid fa-circle-check"></i> Hadir
+                            </label>
+                            <input type="number" id="jml_hadir" min="0" value="0" oninput="calculateTotalAttendance()"
+                                class="w-full text-center text-xl font-black text-emerald-800 bg-emerald-50 border border-emerald-300 rounded-lg py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+
+                        <!-- Sakit -->
+                        <div class="bg-white p-3.5 rounded-xl border-2 border-blue-400 shadow-sm text-center">
+                            <label class="block text-xs font-extrabold text-blue-700 uppercase mb-1">
+                                <i class="fa-solid fa-bed"></i> Sakit
+                            </label>
+                            <input type="number" id="jml_sakit" min="0" value="0" oninput="calculateTotalAttendance()"
+                                class="w-full text-center text-xl font-black text-blue-800 bg-blue-50 border border-blue-300 rounded-lg py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+
+                        <!-- Izin -->
+                        <div class="bg-white p-3.5 rounded-xl border-2 border-amber-400 shadow-sm text-center">
+                            <label class="block text-xs font-extrabold text-amber-700 uppercase mb-1">
+                                <i class="fa-solid fa-envelope-open-text"></i> Izin
+                            </label>
+                            <input type="number" id="jml_izin" min="0" value="0" oninput="calculateTotalAttendance()"
+                                class="w-full text-center text-xl font-black text-amber-800 bg-amber-50 border border-amber-300 rounded-lg py-1.5 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        </div>
+
+                        <!-- Alpa -->
+                        <div class="bg-white p-3.5 rounded-xl border-2 border-rose-400 shadow-sm text-center">
+                            <label class="block text-xs font-extrabold text-rose-700 uppercase mb-1">
+                                <i class="fa-solid fa-user-xmark"></i> Alpa
+                            </label>
+                            <input type="number" id="jml_alpa" min="0" value="0" oninput="calculateTotalAttendance()"
+                                class="w-full text-center text-xl font-black text-rose-800 bg-rose-50 border border-rose-300 rounded-lg py-1.5 focus:outline-none focus:ring-2 focus:ring-rose-500">
+                        </div>
+
+                    </div>
+
+                    <!-- Total Siswa Display & Catatan Siswa -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 flex items-center justify-between shadow-sm">
+                            <div>
+                                <p class="text-xs font-bold text-slate-500 uppercase">Total Siswa Terdaftar</p>
+                                <p class="text-2xl font-black text-slate-800" id="display-total-siswa">0 Orang</p>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
+                                <i class="fa-solid fa-users text-lg"></i>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-2 space-y-1.5">
+                            <label for="catatan_ketidakhadiran" class="block text-xs font-bold text-slate-700 uppercase">
+                                Catatan Siswa Tidak Hadir (Nama & Alasan)
+                            </label>
+                            <textarea id="catatan_ketidakhadiran" rows="2" placeholder="Contoh: Budi (Sakit), Sinta (Izin Acara Keluarga), Rian (Tanpa Keterangan)"
+                                class="w-full p-2.5 text-sm bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Section 3: Upload Bukti KBM & Foto -->
+                <div class="p-5 sm:p-7 border-b border-slate-100">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-emerald-800 border-b pb-2 mb-5 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 text-xs flex items-center justify-center font-black">3</span>
+                        Upload Bukti Foto / Screenshot KBM
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">
+                                File Foto Kegiatan / Screenshot (PNG, JPG, Max 3MB)
+                            </label>
+                            <div class="relative border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:border-emerald-600 transition-colors bg-slate-50 hover:bg-emerald-50/20 cursor-pointer"
+                                 onclick="document.getElementById('bukti_foto').click()">
+                                <input type="file" id="bukti_foto" accept="image/*" onchange="previewImage(event)" class="hidden">
+                                <div class="space-y-2">
+                                    <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
+                                        <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
+                                    </div>
+                                    <p class="text-sm font-semibold text-slate-700">Klik untuk memilih foto / screenshot</p>
+                                    <p class="text-xs text-slate-400">Atau tangkap layar saat pembelajaran daring berlangsung</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Image Preview Container -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Pratinjau Foto Bukti</label>
+                            <div id="image-preview-wrapper" class="w-full h-44 border border-slate-200 rounded-xl bg-slate-100 flex items-center justify-center relative overflow-hidden">
+                                <div id="preview-placeholder" class="text-center p-4 text-slate-400 space-y-1">
+                                    <i class="fa-regular fa-image text-3xl"></i>
+                                    <p class="text-xs">Belum ada foto dipilih</p>
+                                </div>
+                                <img id="image-preview" src="#" alt="Preview Foto" class="hidden w-full h-full object-cover">
+                                <button type="button" id="btn-remove-photo" onclick="removePhotoPreview()" class="hidden absolute top-2 right-2 bg-rose-600 text-white w-7 h-7 rounded-full text-xs shadow-md hover:bg-rose-700 flex items-center justify-center">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Footer Actions -->
+                <div class="p-5 sm:p-6 bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <button type="button" onclick="resetForm()" class="w-full sm:w-auto px-5 py-2.5 rounded-lg border border-slate-300 text-slate-600 text-sm font-semibold hover:bg-slate-100 transition-colors flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-rotate-left"></i> Reset Form
+                    </button>
+                    <button type="submit" class="w-full sm:w-auto px-8 py-3 rounded-xl bg-gradient-to-r from-emerald-800 to-muhammadiyah-700 text-amber-300 hover:from-emerald-900 hover:to-emerald-800 text-sm font-bold shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2 border border-gold-500">
+                        <i class="fa-solid fa-paper-plane"></i> Kirim Laporan Absensi Daring
+                    </button>
+                </div>
+
+            </form>
+        </section>
+
+
+        <!-- ================= SECTION 2: DASHBOARD ADMIN (LOCKED & UNLOCKED) ================= -->
+        <section id="section-admin" class="hidden space-y-6">
+
+            <!-- ADMIN LOCKED STATE -->
+            <div id="admin-locked-card" class="bg-white rounded-2xl shadow-soft border border-slate-200 p-8 sm:p-12 text-center max-w-xl mx-auto my-8">
+                <div class="w-20 h-20 bg-amber-100 text-gold-600 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-gold-500 shadow-sm">
+                    <i class="fa-solid fa-shield-halved text-3xl"></i>
+                </div>
+                <h2 class="text-xl sm:text-2xl font-black text-slate-800 mb-2">Dashboard Admin Terkunci</h2>
+                <p class="text-sm text-slate-500 mb-6 leading-relaxed">
+                    Halaman ini khusus untuk Pimpinan, Kurikulum, dan Tim Admin SMK Muhammadiyah 2 Samarinda untuk merekapitulasi data absensi pembelajaran.
+                </p>
+                <button onclick="openPasswordModal()" class="w-full sm:w-auto px-8 py-3 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-amber-300 font-bold text-sm shadow-md transition-all border border-gold-500 flex items-center justify-center gap-2 mx-auto">
+                    <i class="fa-solid fa-key"></i> Buka Dashboard Admin
+                </button>
+            </div>
+
+
+            <!-- ADMIN UNLOCKED CONTENT -->
+            <div id="admin-unlocked-content" class="hidden space-y-6">
+                
+                <!-- Admin Header Toolbar -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded-md uppercase">Akses Diberikan</span>
+                            <h2 class="text-lg font-bold text-slate-800">Rekapitulasi Data Absensi Pembelajaran Daring</h2>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1"><i class="fa-solid fa-user-shield text-emerald-700"></i> Login sebagai: <span id="admin-username-display" class="font-bold text-emerald-800">-</span> &bull; Data tersimpan otomatis di server Supabase.</p>
+                    </div>
+
+                    <!-- Export Actions & Lock Button -->
+                    <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                        <button onclick="exportToExcel()" class="flex-1 md:flex-initial px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-lg shadow-sm transition-colors flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-file-excel text-amber-300"></i> Excel (.xlsx)
+                        </button>
+                        <button onclick="exportToPDF()" class="flex-1 md:flex-initial px-3.5 py-2 bg-rose-700 hover:bg-rose-800 text-white text-xs font-bold rounded-lg shadow-sm transition-colors flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-file-pdf"></i> PDF (.pdf)
+                        </button>
+                        <button onclick="exportToWord()" class="flex-1 md:flex-initial px-3.5 py-2 bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold rounded-lg shadow-sm transition-colors flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-file-word"></i> Word (.doc)
+                        </button>
+                        <button onclick="lockAdmin()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg border border-slate-300 transition-colors flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-lock"></i> Kunci Dashboard
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Realtime Statistics Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    
+                    <!-- Total Laporan -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center text-xl flex-shrink-0">
+                            <i class="fa-solid fa-file-signature"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase">Total Laporan</p>
+                            <p id="stat-total-laporan" class="text-xl font-black text-slate-800">0</p>
+                        </div>
+                    </div>
+
+                    <!-- Total Hadir -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl flex-shrink-0">
+                            <i class="fa-solid fa-user-check"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase">Siswa Hadir</p>
+                            <p id="stat-total-hadir" class="text-xl font-black text-emerald-700">0</p>
+                        </div>
+                    </div>
+
+                    <!-- Total Sakit & Izin -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-xl flex-shrink-0">
+                            <i class="fa-solid fa-notes-medical"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase">Sakit & Izin</p>
+                            <p id="stat-total-sakit-izin" class="text-xl font-black text-amber-700">0</p>
+                        </div>
+                    </div>
+
+                    <!-- Total Alpa -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-xl flex-shrink-0">
+                            <i class="fa-solid fa-user-xmark"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase">Total Alpa</p>
+                            <p id="stat-total-alpa" class="text-xl font-black text-rose-700">0</p>
+                        </div>
+                    </div>
+
+                    <!-- Rata-rata Kehadiran -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center text-xl flex-shrink-0">
+                            <i class="fa-solid fa-chart-pie"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase">Avg Kehadiran</p>
+                            <p id="stat-avg-kehadiran" class="text-xl font-black text-teal-800">0%</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Filters Bar -->
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-3">
+                        
+                        <!-- Search Box -->
+                        <div class="relative w-full md:w-72">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </span>
+                            <input type="text" id="filter-search" oninput="applyFilters()" placeholder="Cari nama guru / mapel / kelas..."
+                                class="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+                        </div>
+
+                        <!-- Date Filters -->
+                        <div class="flex items-center gap-2 w-full md:w-auto">
+                            <input type="date" id="filter-date-from" onchange="applyFilters()" class="text-xs bg-slate-50 border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-emerald-600">
+                            <span class="text-xs text-slate-400">s.d</span>
+                            <input type="date" id="filter-date-to" onchange="applyFilters()" class="text-xs bg-slate-50 border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-emerald-600">
+                            <button onclick="clearFilters()" class="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-lg transition-colors">
+                                Reset Filter
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Data Table Container -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table id="printable-table" class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-emerald-900 text-amber-200 text-[11px] font-bold uppercase tracking-wider">
+                                    <th class="p-3.5 border-b border-emerald-800">No</th>
+                                    <th class="p-3.5 border-b border-emerald-800">Tanggal</th>
+                                    <th class="p-3.5 border-b border-emerald-800">Guru / Mapel</th>
+                                    <th class="p-3.5 border-b border-emerald-800">Kelas</th>
+                                    <th class="p-3.5 border-b border-emerald-800">Waktu / Jam</th>
+                                    <th class="p-3.5 border-b border-emerald-800">Platform</th>
+                                    <th class="p-3.5 border-b border-emerald-800">Materi</th>
+                                    <th class="p-3.5 border-b border-emerald-800 text-center">H / S / I / A</th>
+                                    <th class="p-3.5 border-b border-emerald-800 text-center">Bukti</th>
+                                    <th class="p-3.5 border-b border-emerald-800 text-center no-print">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body-absensi" class="text-xs divide-y divide-slate-100">
+                                <!-- Dynamic Rows Injected Here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="table-empty-state" class="p-10 text-center text-slate-400 space-y-2 hidden">
+                        <i class="fa-solid fa-folder-open text-4xl text-slate-300"></i>
+                        <p class="text-sm font-medium">Belum ada data absensi ditemukan.</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-emerald-950 text-slate-300 border-t border-emerald-800 py-6 text-center text-xs no-print mt-10">
+        <div class="max-w-7xl mx-auto px-4 space-y-2">
+            <p class="font-bold text-amber-200">SMK Muhammadiyah 2 Samarinda &copy; <span id="footer-year">2026</span></p>
+            <p class="text-slate-400 text-[11px]">Sistem Informasi Jurnal & Absensi Pembelajaran Daring • Islami, Unggul, Berkarakter</p>
+            <p class="text-slate-300 text-[11px]"><i class="fa-solid fa-code text-amber-300"></i> Pengembang Aplikasi: <span class="font-semibold text-amber-200">Tim IT SMK Muhammadiyah 2 Samarinda</span></p>
+        </div>
+    </footer>
+
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- Password Modal for Admin Access -->
+    <div id="modal-password" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 border border-slate-200 relative animate-fade-in">
+            <button onclick="closePasswordModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="text-center space-y-2 mb-5">
+                <div class="w-12 h-12 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center mx-auto text-xl">
+                    <i class="fa-solid fa-key"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800">Masukkan Password Admin</h3>
+                <p class="text-xs text-slate-500">Silakan isi kata sandi untuk membuka dashboard admin.</p>
+            </div>
+            <form onsubmit="verifyAdminPassword(event)" class="space-y-4">
+                <div>
+                    <input type="text" id="input-admin-username" required placeholder="Username Admin..." autocomplete="username"
+                        class="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+                </div>
+                <div>
+                    <input type="password" id="input-admin-password" required placeholder="Kata Sandi Admin..."
+                        class="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+                </div>
+                <p id="admin-login-error" class="hidden text-xs text-rose-700 bg-rose-50 border border-rose-200 rounded-lg p-2.5 break-words"></p>
+                <div class="flex gap-2">
+                    <button type="button" onclick="closePasswordModal()" class="w-1/2 py-2.5 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg">
+                        Batal
+                    </button>
+                    <button type="submit" class="w-1/2 py-2.5 text-xs font-bold text-amber-300 bg-emerald-800 hover:bg-emerald-900 rounded-lg border border-gold-500 shadow-sm">
+                        Masuk Admin
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Detail & Foto Zoom Modal -->
+    <div id="modal-detail" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 border border-slate-200 relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            
+            <h3 class="text-lg font-bold text-emerald-900 border-b pb-3 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-file-circle-check text-gold-600"></i> Detail Laporan Absensi Daring
+            </h3>
+
+            <div id="detail-modal-body" class="space-y-4 text-xs text-slate-700">
+                <!-- Data dynamically inserted -->
+            </div>
+
+            <div class="mt-6 pt-4 border-t flex justify-end">
+                <button onclick="closeDetailModal()" class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs rounded-lg">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module">
+        // ================= KONFIGURASI SUPABASE (ISI DENGAN MILIK ANDA) =================
+        const SUPABASE_URL = 'https://gglmqukojewsxtvdubtm.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_yvw4cx2JOtCMsjXAyrqQ5A_Tn2mrQEv';
+        const ADMIN_EMAIL = 'alkahvirusdin1@gmail.com'; // email akun admin di Supabase Auth
+        // Daftar username admin -> email akun di Supabase Auth (tambah baris untuk admin lain)
+        const ADMIN_USERS = {
+            'admin': 'alkahvirusdin1@gmail.com'
+        };
+        const BUCKET = 'bukti-kbm';
+
+        const STATE = {
+            isAdminUnlocked: false,
+            absensiList: [],
+            currentPhotoBase64: null
+        };
+        let sb = null;
+        let realtimeChannel = null;
+
+        function toRow(r, fotoPath) {
+            return {
+                nama_guru: r.namaGuru, mapel: r.mapel, kelas: r.kelas, tanggal: r.tanggal,
+                waktu: r.waktu, platform: r.platform, topik: r.topik,
+                hadir: r.hadir, sakit: r.sakit, izin: r.izin, alpa: r.alpa,
+                total_siswa: r.totalSiswa, catatan: r.catatan || null, foto_path: fotoPath || null
+            };
+        }
+
+        function fromRow(r) {
+            return {
+                id: r.id, namaGuru: r.nama_guru, mapel: r.mapel, kelas: r.kelas, tanggal: r.tanggal,
+                waktu: r.waktu, platform: r.platform, topik: r.topik,
+                hadir: r.hadir, sakit: r.sakit, izin: r.izin, alpa: r.alpa,
+                totalSiswa: r.total_siswa, catatan: r.catatan,
+                fotoPath: r.foto_path, foto: null, createdAt: r.created_at
+            };
+        }
+
+        async function initApp() {
+            try {
+                sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                const { data } = await sb.auth.getSession();
+                if (data && data.session) await onAdminLoggedIn(); // pulihkan sesi admin
+            } catch (err) {
+                console.warn("Supabase init error:", err);
+                showToast("Gagal terhubung ke Supabase. Periksa URL & key.", "error");
+            }
+
+            const dateInput = document.getElementById('tanggal_mengajar');
+            if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+
+            startLiveClock();
+            document.getElementById('footer-year').textContent = new Date().getFullYear();
+        }
+
+        async function loadData() {
+            const { data, error } = await sb.from('absensi').select('*').order('created_at', { ascending: false });
+            if (error) { showToast("Gagal memuat data: " + error.message, "error"); return; }
+
+            const list = data.map(fromRow);
+            const paths = list.filter(x => x.fotoPath).map(x => x.fotoPath);
+            if (paths.length) {
+                const { data: signed } = await sb.storage.from(BUCKET).createSignedUrls(paths, 3600);
+                const map = {};
+                (signed || []).forEach(x => { if (x.signedUrl) map[x.path] = x.signedUrl; });
+                list.forEach(x => { if (x.fotoPath) x.foto = map[x.fotoPath] || null; });
+            }
+            STATE.absensiList = list;
+            renderTable();
+            updateDashboardStats();
+        }
+
+        function subscribeRealtime() {
+            if (realtimeChannel) return;
+            realtimeChannel = sb.channel('absensi-changes')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'absensi' }, () => loadData())
+                .subscribe();
+        }
+
+        async function onAdminLoggedIn() {
+            STATE.isAdminUnlocked = true;
+            closePasswordModal();
+            document.getElementById('admin-lock-icon').className = "fa-solid fa-unlock text-amber-300";
+            document.getElementById('admin-nav-text').textContent = "Dashboard Admin (Terbuka)";
+            document.getElementById('admin-locked-card').classList.add('hidden');
+            document.getElementById('admin-unlocked-content').classList.remove('hidden');
+            try {
+                const { data: u } = await sb.auth.getUser();
+                const em = (u && u.user && u.user.email) ? u.user.email : ADMIN_EMAIL;
+                const un = Object.keys(ADMIN_USERS).find(k => ADMIN_USERS[k].toLowerCase() === em.toLowerCase()) || em;
+                const el = document.getElementById('admin-username-display');
+                if (el) el.textContent = un;
+            } catch (e) { /* abaikan */ }
+            switchTab('admin');
+            await loadData();
+            subscribeRealtime();
+        }
+
+        // Live Clock
+        function startLiveClock() {
+            setInterval(() => {
+                const clockEl = document.getElementById('live-clock');
+                if (clockEl) {
+                    const now = new Date();
+                    clockEl.textContent = now.toLocaleTimeString('id-ID', { timeZone: 'Asia/Makassar' }) + ' WITA';
+                }
+            }, 1000);
+        }
+
+        // Calculate Total Attendance
+        window.calculateTotalAttendance = function() {
+            const h = parseInt(document.getElementById('jml_hadir').value) || 0;
+            const s = parseInt(document.getElementById('jml_sakit').value) || 0;
+            const i = parseInt(document.getElementById('jml_izin').value) || 0;
+            const a = parseInt(document.getElementById('jml_alpa').value) || 0;
+
+            const total = h + s + i + a;
+            document.getElementById('display-total-siswa').textContent = total + ' Orang';
+
+            const pctBadge = document.getElementById('calc-percentage-badge');
+            if (total > 0) {
+                const pct = Math.round((h / total) * 100);
+                pctBadge.textContent = `Tingkat Kehadiran: ${pct}%`;
+                if (pct >= 85) {
+                    pctBadge.className = "text-xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-bold";
+                } else if (pct >= 70) {
+                    pctBadge.className = "text-xs bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full font-bold";
+                } else {
+                    pctBadge.className = "text-xs bg-rose-100 text-rose-800 px-2.5 py-1 rounded-full font-bold";
+                }
+            } else {
+                pctBadge.textContent = "Tingkat Kehadiran: 100%";
+            }
+        };
+
+        // Handle Image Upload Preview
+        window.previewImage = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.size > 3 * 1024 * 1024) {
+                showToast("Ukuran foto maksimal 3MB", "error");
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                STATE.currentPhotoBase64 = e.target.result;
+                const imgEl = document.getElementById('image-preview');
+                const placeholder = document.getElementById('preview-placeholder');
+                const btnRemove = document.getElementById('btn-remove-photo');
+
+                imgEl.src = e.target.result;
+                imgEl.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+                btnRemove.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.removePhotoPreview = function() {
+            STATE.currentPhotoBase64 = null;
+            document.getElementById('bukti_foto').value = '';
+            document.getElementById('image-preview').classList.add('hidden');
+            document.getElementById('preview-placeholder').classList.remove('hidden');
+            document.getElementById('btn-remove-photo').classList.add('hidden');
+        };
+
+        window.handleFormSubmit = async function(event) {
+            event.preventDefault();
+
+            const namaGuru = document.getElementById('nama_guru').value.trim();
+            const mapel = document.getElementById('mata_pelajaran').value.trim();
+            const kelas = document.getElementById('kelas_manual').value.trim(); // MANUAL INPUT
+            const tanggal = document.getElementById('tanggal_mengajar').value;
+            const waktu = document.getElementById('waktu_mengajar').value.trim(); // MANUAL INPUT
+            const platform = document.getElementById('platform_daring').value;
+            const topik = document.getElementById('topik_materi').value.trim();
+
+            const hadir = parseInt(document.getElementById('jml_hadir').value) || 0;
+            const sakit = parseInt(document.getElementById('jml_sakit').value) || 0;
+            const izin = parseInt(document.getElementById('jml_izin').value) || 0;
+            const alpa = parseInt(document.getElementById('jml_alpa').value) || 0;
+            const catatan = document.getElementById('catatan_ketidakhadiran').value.trim();
+
+            if (!namaGuru || !mapel || !kelas || !tanggal || !waktu || !platform || !topik) {
+                showToast("Harap lengkapi semua kolom bertanda bintang (*)", "warning");
+                return;
+            }
+
+            const newRecord = {
+                namaGuru,
+                mapel,
+                kelas,
+                tanggal,
+                waktu,
+                platform,
+                topik,
+                hadir,
+                sakit,
+                izin,
+                alpa,
+                totalSiswa: hadir + sakit + izin + alpa,
+                catatan,
+                foto: STATE.currentPhotoBase64 || null,
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                // Upload foto ke Supabase Storage (jika ada)
+                let fotoPath = null;
+                if (STATE.currentPhotoBase64) {
+                    const blob = await (await fetch(STATE.currentPhotoBase64)).blob();
+                    const ext = (blob.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg');
+                    fotoPath = `${tanggal}/${crypto.randomUUID()}.${ext}`;
+                    const up = await sb.storage.from(BUCKET).upload(fotoPath, blob, { contentType: blob.type });
+                    if (up.error) throw up.error;
+                }
+
+                const { error } = await sb.from('absensi').insert(toRow(newRecord, fotoPath));
+                if (error) throw error;
+
+                showToast("Laporan Absensi berhasil dikirim dan tersimpan di server!", "success");
+                resetForm();
+                if (STATE.isAdminUnlocked) loadData();
+            } catch (err) {
+                console.error("Gagal mengirim laporan:", err);
+                showToast("Gagal mengirim laporan: " + (err.message || err), "error");
+            }
+        };
+
+        window.resetForm = function() {
+            document.getElementById('absensi-form').reset();
+            removePhotoPreview();
+            document.getElementById('tanggal_mengajar').value = new Date().toISOString().split('T')[0];
+            calculateTotalAttendance();
+        };
+
+        window.triggerAdminAccess = function() {
+            if (STATE.isAdminUnlocked) {
+                switchTab('admin');
+            } else {
+                openPasswordModal();
+            }
+        };
+
+        window.openPasswordModal = function() {
+            const eb = document.getElementById('admin-login-error'); if (eb) eb.classList.add('hidden');
+            document.getElementById('modal-password').classList.remove('hidden');
+            document.getElementById('input-admin-username').focus();
+        };
+
+        window.closePasswordModal = function() {
+            const eb = document.getElementById('admin-login-error'); if (eb) eb.classList.add('hidden');
+            document.getElementById('modal-password').classList.add('hidden');
+            document.getElementById('input-admin-password').value = '';
+        };
+
+        window.verifyAdminPassword = async function(event) {
+            event.preventDefault();
+            const pw = document.getElementById('input-admin-password').value;
+            const usernameInput = document.getElementById('input-admin-username').value.trim().toLowerCase();
+            const emailLogin = ADMIN_USERS[usernameInput] || (usernameInput.includes('@') ? usernameInput : null);
+            if (!emailLogin) {
+                const box0 = document.getElementById('admin-login-error');
+                box0.textContent = "Username atau password salah.";
+                box0.classList.remove('hidden');
+                return;
+            }
+            let error = null;
+            try {
+                ({ error } = await sb.auth.signInWithPassword({ email: emailLogin, password: pw }));
+            } catch (e) { error = e; }
+            if (error) {
+                console.error("Login admin gagal:", error);
+                let pesan;
+                if (SUPABASE_URL.includes('XXXXXXXX') || SUPABASE_ANON_KEY.includes('ISI_ANON')) {
+                    pesan = "SUPABASE_URL / SUPABASE_ANON_KEY belum diisi di file HTML.";
+                } else if (/invalid login credentials/i.test(error.message)) {
+                    pesan = "Email atau password salah. Periksa akun di Supabase > Authentication > Users.";
+                } else if (/email not confirmed/i.test(error.message)) {
+                    pesan = "Akun belum dikonfirmasi. Di Supabase, buka akun lalu pilih Confirm user.";
+                } else {
+                    pesan = "Login gagal: " + error.message;
+                }
+                const box = document.getElementById('admin-login-error');
+                box.textContent = pesan + "  [Detail teknis: " + (error.message || error) + "]";
+                box.classList.remove('hidden');
+                return;
+            }
+            await onAdminLoggedIn();
+            showToast("Akses Admin berhasil dibuka!", "success");
+        };
+
+        window.lockAdmin = async function() {
+            if (sb) await sb.auth.signOut();
+            if (realtimeChannel) { sb.removeChannel(realtimeChannel); realtimeChannel = null; }
+            STATE.absensiList = [];
+            STATE.isAdminUnlocked = false;
+            document.getElementById('admin-lock-icon').className = "fa-solid fa-lock";
+            document.getElementById('admin-nav-text').textContent = "Dashboard Admin";
+            document.getElementById('admin-locked-card').classList.remove('hidden');
+            document.getElementById('admin-unlocked-content').classList.add('hidden');
+            switchTab('form');
+            showToast("Dashboard Admin terkunci kembali.", "info");
+        };
+
+        window.switchTab = function(tabName) {
+            const secForm = document.getElementById('section-form');
+            const secAdmin = document.getElementById('section-admin');
+            const btnForm = document.getElementById('btn-tab-form');
+            const btnAdmin = document.getElementById('btn-tab-admin');
+
+            if (tabName === 'form') {
+                secForm.classList.remove('hidden');
+                secAdmin.classList.add('hidden');
+
+                btnForm.className = "px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 bg-white text-emerald-800 shadow-sm border border-emerald-100";
+                btnAdmin.className = "px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 bg-emerald-800/80 hover:bg-emerald-800 text-amber-300 border border-emerald-600";
+            } else {
+                secForm.classList.add('hidden');
+                secAdmin.classList.remove('hidden');
+
+                btnAdmin.className = "px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 bg-white text-emerald-800 shadow-sm border border-emerald-100";
+                btnForm.className = "px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 bg-emerald-800/80 hover:bg-emerald-800 text-amber-300 border border-emerald-600";
+            }
+        };
+
+        function renderTable() {
+            if (!STATE.isAdminUnlocked) return;
+
+            const tbody = document.getElementById('table-body-absensi');
+            const emptyState = document.getElementById('table-empty-state');
+            tbody.innerHTML = '';
+
+            const list = getFilteredData();
+
+            if (list.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            list.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 border-b border-slate-100 transition-colors";
+
+                const dateFormatted = item.tanggal ? new Date(item.tanggal).toLocaleDateString('id-ID', {
+                    day: '2-digit', month: 'short', year: 'numeric'
+                }) : '-';
+
+                tr.innerHTML = `
+                    <td class="p-3.5 font-bold text-slate-500">${index + 1}</td>
+                    <td class="p-3.5 whitespace-nowrap font-medium text-slate-700">${dateFormatted}</td>
+                    <td class="p-3.5">
+                        <div class="font-bold text-slate-800">${escapeHtml(item.namaGuru)}</div>
+                        <div class="text-[11px] text-emerald-700 font-semibold">${escapeHtml(item.mapel)}</div>
+                    </td>
+                    <td class="p-3.5 whitespace-nowrap">
+                        <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-900 font-bold text-[11px]">
+                            ${escapeHtml(item.kelas)}
+                        </span>
+                    </td>
+                    <td class="p-3.5 text-slate-600 whitespace-nowrap font-medium">
+                        ${escapeHtml(item.waktu)}
+                    </td>
+                    <td class="p-3.5 whitespace-nowrap">
+                        <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-medium">
+                            ${escapeHtml(item.platform)}
+                        </span>
+                    </td>
+                    <td class="p-3.5 max-w-xs truncate text-slate-600" title="${escapeHtml(item.topik)}">
+                        ${escapeHtml(item.topik)}
+                    </td>
+                    <td class="p-3.5 text-center whitespace-nowrap">
+                        <span class="text-emerald-700 font-extrabold">${item.hadir || 0}</span> / 
+                        <span class="text-blue-700 font-bold">${item.sakit || 0}</span> / 
+                        <span class="text-amber-700 font-bold">${item.izin || 0}</span> / 
+                        <span class="text-rose-700 font-bold">${item.alpa || 0}</span>
+                    </td>
+                    <td class="p-3.5 text-center">
+                        ${item.foto ? `
+                            <button onclick="viewDetailModal('${item.id}')" class="text-emerald-700 hover:text-emerald-900 underline font-semibold flex items-center justify-center gap-1 mx-auto">
+                                <i class="fa-solid fa-image"></i> Lihat
+                            </button>
+                        ` : '<span class="text-slate-300">-</span>'}
+                    </td>
+                    <td class="p-3.5 text-center whitespace-nowrap no-print">
+                        <div class="flex items-center justify-center gap-1">
+                            <button onclick="viewDetailModal('${item.id}')" title="Detail Laporan" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                            <button onclick="deleteRecord('${item.id}')" title="Hapus Data" class="p-1.5 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-md">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateDashboardStats() {
+            const list = STATE.absensiList;
+            const totalLaporan = list.length;
+            
+            let totalHadir = 0;
+            let totalSakitIzin = 0;
+            let totalAlpa = 0;
+            let grandTotalSiswa = 0;
+
+            list.forEach(item => {
+                totalHadir += (item.hadir || 0);
+                totalSakitIzin += (item.sakit || 0) + (item.izin || 0);
+                totalAlpa += (item.alpa || 0);
+                grandTotalSiswa += (item.totalSiswa || ((item.hadir || 0) + (item.sakit || 0) + (item.izin || 0) + (item.alpa || 0)));
+            });
+
+            const avgKehadiran = grandTotalSiswa > 0 ? Math.round((totalHadir / grandTotalSiswa) * 100) : 0;
+
+            document.getElementById('stat-total-laporan').textContent = totalLaporan;
+            document.getElementById('stat-total-hadir').textContent = totalHadir + " Siswa";
+            document.getElementById('stat-total-sakit-izin').textContent = totalSakitIzin + " Siswa";
+            document.getElementById('stat-total-alpa').textContent = totalAlpa + " Siswa";
+            document.getElementById('stat-avg-kehadiran').textContent = avgKehadiran + "%";
+        }
+
+        function getFilteredData() {
+            const query = (document.getElementById('filter-search').value || '').toLowerCase();
+            const dateFrom = document.getElementById('filter-date-from').value;
+            const dateTo = document.getElementById('filter-date-to').value;
+
+            return STATE.absensiList.filter(item => {
+                const matchQuery = !query || 
+                    (item.namaGuru && item.namaGuru.toLowerCase().includes(query)) ||
+                    (item.mapel && item.mapel.toLowerCase().includes(query)) ||
+                    (item.kelas && item.kelas.toLowerCase().includes(query));
+
+                let matchDate = true;
+                if (dateFrom && item.tanggal < dateFrom) matchDate = false;
+                if (dateTo && item.tanggal > dateTo) matchDate = false;
+
+                return matchQuery && matchDate;
+            });
+        }
+
+        window.applyFilters = function() {
+            renderTable();
+        };
+
+        window.clearFilters = function() {
+            document.getElementById('filter-search').value = '';
+            document.getElementById('filter-date-from').value = '';
+            document.getElementById('filter-date-to').value = '';
+            renderTable();
+        };
+
+        window.viewDetailModal = function(id) {
+            const item = STATE.absensiList.find(x => x.id === id);
+            if (!item) return;
+
+            const modalBody = document.getElementById('detail-modal-body');
+            modalBody.innerHTML = `
+                <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                    <div>
+                        <span class="text-slate-400 block font-semibold">Nama Guru:</span>
+                        <span class="font-bold text-slate-800 text-sm">${escapeHtml(item.namaGuru)}</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block font-semibold">Mata Pelajaran:</span>
+                        <span class="font-bold text-slate-800 text-sm">${escapeHtml(item.mapel)}</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block font-semibold">Kelas (Manual Input):</span>
+                        <span class="font-bold text-emerald-800 text-sm">${escapeHtml(item.kelas)}</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block font-semibold">Tanggal & Waktu / Jam:</span>
+                        <span class="font-bold text-slate-800 text-sm">${item.tanggal} (${escapeHtml(item.waktu)})</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block font-semibold">Platform:</span>
+                        <span class="font-bold text-slate-800 text-sm">${escapeHtml(item.platform)}</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block font-semibold">Total Siswa:</span>
+                        <span class="font-bold text-slate-800 text-sm">${item.totalSiswa || 0} Orang</span>
+                    </div>
+                </div>
+
+                <div class="bg-emerald-50/50 p-3.5 rounded-xl border border-emerald-200">
+                    <span class="text-emerald-800 font-bold block mb-1">Topik / Materi Pembelajaran:</span>
+                    <p class="text-slate-700 leading-relaxed">${escapeHtml(item.topik)}</p>
+                </div>
+
+                <div class="grid grid-cols-4 gap-2 text-center">
+                    <div class="bg-emerald-100 p-2 rounded-lg font-bold text-emerald-800">
+                        Hadir: ${item.hadir || 0}
+                    </div>
+                    <div class="bg-blue-100 p-2 rounded-lg font-bold text-blue-800">
+                        Sakit: ${item.sakit || 0}
+                    </div>
+                    <div class="bg-amber-100 p-2 rounded-lg font-bold text-amber-800">
+                        Izin: ${item.izin || 0}
+                    </div>
+                    <div class="bg-rose-100 p-2 rounded-lg font-bold text-rose-800">
+                        Alpa: ${item.alpa || 0}
+                    </div>
+                </div>
+
+                ${item.catatan ? `
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <span class="font-bold text-slate-700 block mb-0.5">Catatan Siswa Tidak Hadir:</span>
+                        <p class="text-slate-600">${escapeHtml(item.catatan)}</p>
+                    </div>
+                ` : ''}
+
+                ${item.foto ? `
+                    <div>
+                        <span class="font-bold text-slate-700 block mb-2">Bukti Foto / Screenshot KBM:</span>
+                        <div class="border rounded-xl overflow-hidden bg-black flex justify-center max-h-80">
+                            <img src="${item.foto}" alt="Bukti KBM" class="object-contain max-h-80 w-auto">
+                        </div>
+                    </div>
+                ` : '<p class="text-slate-400 italic">Tidak ada foto bukti diunggah.</p>'}
+            `;
+
+            document.getElementById('modal-detail').classList.remove('hidden');
+        };
+
+        window.closeDetailModal = function() {
+            document.getElementById('modal-detail').classList.add('hidden');
+        };
+
+        window.deleteRecord = async function(id) {
+            if (!confirm("Apakah Anda yakin ingin menghapus data laporan absensi ini?")) return;
+
+            const item = STATE.absensiList.find(x => x.id === id);
+            const { error } = await sb.from('absensi').delete().eq('id', id);
+            if (error) { showToast("Gagal menghapus: " + error.message, "error"); return; }
+            if (item && item.fotoPath) await sb.storage.from(BUCKET).remove([item.fotoPath]);
+
+            await loadData();
+            showToast("Data berhasil dihapus.", "info");
+        };
+
+        window.exportToExcel = function() {
+            const list = getFilteredData();
+            if (list.length === 0) {
+                showToast("Tidak ada data untuk diekspor", "warning");
+                return;
+            }
+
+            const exportArray = list.map((item, idx) => ({
+                "No": idx + 1,
+                "Tanggal": item.tanggal,
+                "Nama Guru": item.namaGuru,
+                "Mata Pelajaran": item.mapel,
+                "Kelas": item.kelas,
+                "Waktu / Jam Mengajar": item.waktu,
+                "Platform": item.platform,
+                "Topik Materi": item.topik,
+                "Hadir": item.hadir,
+                "Sakit": item.sakit,
+                "Izin": item.izin,
+                "Alpa": item.alpa,
+                "Total Siswa": item.totalSiswa,
+                "Catatan Ketidakhadiran": item.catatan || "-"
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(exportArray);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Rekap Absensi Daring");
+            XLSX.writeFile(workbook, `Rekap_Absensi_SMK_Muda_${new Date().toISOString().split('T')[0]}.xlsx`);
+            showToast("Berhasil mengunduh Laporan Excel (.xlsx)", "success");
+        };
+
+        window.exportToPDF = function() {
+            const element = document.getElementById('printable-table');
+            if (!element) return;
+
+            const opt = {
+                margin:       [0.3, 0.3, 0.3, 0.3],
+                filename:     `Laporan_Absensi_Daring_SMKMuda_${new Date().toISOString().split('T')[0]}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
+            };
+
+            html2pdf().set(opt).from(element).save();
+            showToast("Proses unduh PDF dimulai...", "info");
+        };
+
+        window.exportToWord = function() {
+            const list = getFilteredData();
+            if (list.length === 0) {
+                showToast("Tidak ada data untuk diekspor", "warning");
+                return;
+            }
+
+            let htmlContent = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head><title>Laporan Absensi SMK Muhammadiyah 2 Samarinda</title>
+                <style>
+                    body { font-family: Arial, sans-serif; }
+                    table { border-collapse: collapse; width: 100%; }
+                    th, td { border: 1px solid #000; padding: 6px; font-size: 11px; }
+                    th { background-color: #006633; color: #fff; }
+                    h2 { text-align: center; color: #006633; }
+                </style>
+                </head>
+                <body>
+                    <h2>REKAPITULASI ABSENSI PEMBELAJARAN DARING<br>SMK MUHAMMADIYAH 2 SAMARINDA</h2>
+                    <hr><br>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Tanggal</th>
+                                <th>Nama Guru</th>
+                                <th>Mata Pelajaran</th>
+                                <th>Kelas</th>
+                                <th>Waktu / Jam</th>
+                                <th>Platform</th>
+                                <th>Materi</th>
+                                <th>Hadir</th>
+                                <th>Sakit</th>
+                                <th>Izin</th>
+                                <th>Alpa</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            list.forEach((item, i) => {
+                htmlContent += `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${item.tanggal}</td>
+                        <td>${escapeHtml(item.namaGuru)}</td>
+                        <td>${escapeHtml(item.mapel)}</td>
+                        <td>${escapeHtml(item.kelas)}</td>
+                        <td>${escapeHtml(item.waktu)}</td>
+                        <td>${escapeHtml(item.platform)}</td>
+                        <td>${escapeHtml(item.topik)}</td>
+                        <td>${item.hadir}</td>
+                        <td>${item.sakit}</td>
+                        <td>${item.izin}</td>
+                        <td>${item.alpa}</td>
+                    </tr>
+                `;
+            });
+
+            htmlContent += `</tbody></table></body></html>`;
+
+            const blob = new Blob(['\ufeff', htmlContent], {
+                type: 'application/msword'
+            });
+
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Rekap_Absensi_SMK_Muda_${new Date().toISOString().split('T')[0]}.doc`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showToast("Berhasil mengunduh dokumen Word (.doc)", "success");
+        };
+
+        function showToast(message, type = "info") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgClass = "bg-slate-800 text-white";
+            let icon = "fa-circle-info";
+
+            if (type === "success") {
+                bgClass = "bg-emerald-800 text-amber-300 border border-gold-500 shadow-lg";
+                icon = "fa-circle-check";
+            } else if (type === "error") {
+                bgClass = "bg-rose-800 text-white shadow-lg";
+                icon = "fa-triangle-exclamation";
+            } else if (type === "warning") {
+                bgClass = "bg-amber-600 text-white shadow-lg";
+                icon = "fa-bell";
+            }
+
+            toast.className = `p-3.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 shadow-xl transition-all duration-300 transform translate-y-2 pointer-events-auto ${bgClass}`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-base"></i> <span>${message}</span>`;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', '-translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, type === "error" ? 9000 : 3000);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // Initialize application on window load
+        window.onload = function() {
+            initApp();
+        };
+    </script>
+</body>
+</html>
